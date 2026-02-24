@@ -49,6 +49,24 @@ function getFormattedDate(date) {
   };
 }
 
+// Separation of Concerns - this function is only responsible for formatting local date with time
+function getFormattedLocalDateWithTime(date) {
+  return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+}
+
+// Separation of Concerns - this function is only responsible for formatting dates
+function formatDateToDateFormat(date, format) {
+  if (format === DATE_FORMATS.ISO) {
+    return date.toISOString();
+  } else if (format === DATE_FORMATS.UTC) {
+    return date.toUTCString();
+  } else if (format === DATE_FORMATS.LOCAL) {
+    return date.toLocaleString();
+  } else {
+    return date.toString();
+  }
+}
+
 // Separation of Concerns - this function is only responsible for capitalizing strings, not date logic
 function capitalizeString(separator, str) {
   return str
@@ -64,7 +82,8 @@ class DateProcessor {
     this.date = new Date(date);
   }
 
-  processDateComplex(
+  // Renamed function to be more descriptive and self-explanatory
+  getTransformedDateWithOffset(
     inputDate,
     includeTime = false,
     extraOffset = 0,
@@ -75,25 +94,17 @@ class DateProcessor {
     validateDate(date);
 
     const offset = config.offsetHours || 0;
-    const format = config.format || DATE_FORMATS.ISO;
+    const dateFormat = config.format || DATE_FORMATS.ISO;
 
     let resultDate = new Date(
       date.getTime() + (offset + extraOffset) * 60 * 60 * 1000,
     );
 
-    if (includeTime) {
-      return `${resultDate.toLocaleDateString()} ${resultDate.toLocaleTimeString()}`;
-    }
+    // Code for Humans
+    if (includeTime) return getFormattedLocalDateWithTime(resultDate);
 
-    if (format === DATE_FORMATS.ISO) {
-      return resultDate.toISOString();
-    } else if (format === DATE_FORMATS.UTC) {
-      return resultDate.toUTCString();
-    } else if (format === DATE_FORMATS.LOCAL) {
-      return resultDate.toLocaleString();
-    } else {
-      return resultDate.toString();
-    }
+    // Code for Humans
+    return formatDateToDateFormat(resultDate, dateFormat);
   }
 
   //  Code for Humans - rename methods to be more descriptive
@@ -127,6 +138,7 @@ class DateProcessor {
 }
 
 // DateProcessor example usage
+// Leaving these console logs herefor self validation
 const dateProcessorExample = new DateProcessor("2026-02-24T10:30:00Z");
 
 console.log("DateProcessor object:", dateProcessorExample);
@@ -145,24 +157,42 @@ console.log(
 console.log("isWeekend:", dateProcessorExample.isWeekend());
 
 console.log(
-  "processDateComplex (ISO):",
-  dateProcessorExample.processDateComplex("2026-02-24T10:30:00Z", false, 0, {
-    format: DATE_FORMATS.ISO,
-  }),
+  "getTransformedDateWithOffset (ISO):",
+  dateProcessorExample.getTransformedDateWithOffset(
+    "2026-02-24T10:30:00Z",
+    false,
+    0,
+    {
+      format: DATE_FORMATS.ISO,
+    },
+  ),
 );
 console.log(
-  "processDateComplex (UTC):",
-  dateProcessorExample.processDateComplex("2026-02-24T10:30:00Z", false, 0, {
-    format: DATE_FORMATS.UTC,
-  }),
+  "getTransformedDateWithOffset (UTC):",
+  dateProcessorExample.getTransformedDateWithOffset(
+    "2026-02-24T10:30:00Z",
+    false,
+    0,
+    {
+      format: DATE_FORMATS.UTC,
+    },
+  ),
 );
 console.log(
-  "processDateComplex (LOCAL, +2h):",
-  dateProcessorExample.processDateComplex("2026-02-24T10:30:00Z", false, 2, {
-    format: DATE_FORMATS.LOCAL,
-  }),
+  "getTransformedDateWithOffset (LOCAL, +2h):",
+  dateProcessorExample.getTransformedDateWithOffset(
+    "2026-02-24T10:30:00Z",
+    false,
+    2,
+    {
+      format: DATE_FORMATS.LOCAL,
+    },
+  ),
 );
 console.log(
-  "processDateComplex (includeTime):",
-  dateProcessorExample.processDateComplex("2026-02-24T10:30:00Z", true),
+  "getTransformedDateWithOffset (includeTime):",
+  dateProcessorExample.getTransformedDateWithOffset(
+    "2026-02-24T10:30:00Z",
+    true,
+  ),
 );
