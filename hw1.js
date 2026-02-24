@@ -1,3 +1,21 @@
+// Code for Humans - self explainatory object with all date formats
+// DRY = don't repeat yourself (e.g. ISO string)
+// Separation of Concerns - separate config strings from class logic
+const DATE_FORMATS = {
+  ISO: "ISO",
+  UTC: "UTC",
+  LOCAL: "LOCAL",
+};
+
+// #region utils
+
+// Code for Humans - utility function to check if a date is valid
+function isValidDate(date) {
+  return date instanceof Date && !isNaN(date);
+}
+
+// #endregion
+
 class DateProcessor {
   constructor(date) {
     this.date = new Date(date);
@@ -10,12 +28,13 @@ class DateProcessor {
     config = {},
   ) {
     let date = new Date(inputDate);
-    if (isNaN(date)) {
+
+    if (!isValidDate(date)) {
       throw new Error("Invalid date");
     }
 
     const offset = config.offsetHours || 0;
-    const format = config.format || "ISO";
+    const format = config.format || DATE_FORMATS.ISO;
 
     let resultDate = new Date(
       date.getTime() + (offset + extraOffset) * 60 * 60 * 1000,
@@ -25,11 +44,11 @@ class DateProcessor {
       return `${resultDate.toLocaleDateString()} ${resultDate.toLocaleTimeString()}`;
     }
 
-    if (format === "ISO") {
+    if (format === DATE_FORMATS.ISO) {
       return resultDate.toISOString();
-    } else if (format === "UTC") {
+    } else if (format === DATE_FORMATS.UTC) {
       return resultDate.toUTCString();
-    } else if (format === "LOCAL") {
+    } else if (format === DATE_FORMATS.LOCAL) {
       return resultDate.toLocaleString();
     } else {
       return resultDate.toString();
