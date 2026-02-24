@@ -7,11 +7,54 @@ const DATE_FORMATS = {
   LOCAL: "LOCAL",
 };
 
+// Separation of Concerns - define constants for weekend days instead of hardcoding numbers in the method
+// Sunday (0) and Saturday (6)
+const WEEKEND_DAYS = [0, 6];
+
 // #region utils
 
 // Code for Humans - utility function to check if a date is valid
 function isValidDate(date) {
   return date instanceof Date && !isNaN(date);
+}
+
+// DRY - utility function to validate date for the type safety, can be reused across methods
+function validateDate(date) {
+  if (!isValidDate(date)) {
+    throw new Error("Invalid date input");
+  }
+}
+
+// KISS, DRY, Separation of Concerns
+function formatToTwoDigits(num) {
+  return num.toString().padStart(2, "0");
+}
+
+// KISS, DRY,  Separation of Concerns
+function getFormattedDateDay(date) {
+  return formatToTwoDigits(date.getDate());
+}
+
+// KISS, DRY,  Separation of Concerns
+function getFormattedDateMonth(date) {
+  return formatToTwoDigits(date.getMonth() + 1);
+}
+
+// KISS, DRY,  Separation of Concerns
+function getFormattedDate(date) {
+  return {
+    day: getFormattedDateDay(date),
+    month: getFormattedDateMonth(date),
+    year: date.getFullYear(),
+  };
+}
+
+// Separation of Concerns - this function is only responsible for capitalizing strings, not date logic
+function capitalizeString(separator, str) {
+  return str
+    .split(separator)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(separator);
 }
 
 // #endregion
@@ -29,9 +72,7 @@ class DateProcessor {
   ) {
     let date = new Date(inputDate);
 
-    if (!isValidDate(date)) {
-      throw new Error("Invalid date");
-    }
+    validateDate(date);
 
     const offset = config.offsetHours || 0;
     const format = config.format || DATE_FORMATS.ISO;
@@ -55,33 +96,33 @@ class DateProcessor {
     }
   }
 
-  formatDateShort() {
-    const d = this.date;
-    const day = d.getDate().toString().padStart(2, "0");
-    const month = (d.getMonth() + 1).toString().padStart(2, "0");
-    const year = d.getFullYear();
+  //  Code for Humans - rename methods to be more descriptive
+  formatDateSlashSeparated() {
+    validateDate(this.date);
+
+    const { day, month, year } = getFormattedDate(this.date);
     return `${day}/${month}/${year}`;
   }
 
-  formatDateLong() {
-    const d = this.date;
-    const day = d.getDate().toString().padStart(2, "0");
-    const month = (d.getMonth() + 1).toString().padStart(2, "0");
-    const year = d.getFullYear();
+  //  Code for Humans - rename methods to be more descriptive
+  formatDateDashSeparated() {
+    validateDate(this.date);
+
+    const { day, month, year } = getFormattedDate(this.date);
     return `${day} - ${month} - ${year}`;
   }
 
   capitalizeDateString(str) {
     if (typeof str !== "string") return "";
-    return str
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
+
+    return capitalizeString(" ", str);
   }
 
   isWeekend() {
+    validateDate(this.date);
     const day = this.date.getDay();
-    return day === 0 || day === 6;
+
+    return WEEKEND_DAYS.includes(day);
   }
 }
 
@@ -89,8 +130,14 @@ class DateProcessor {
 const dateProcessorExample = new DateProcessor("2026-02-24T10:30:00Z");
 
 console.log("DateProcessor object:", dateProcessorExample);
-console.log("formatDateShort:", dateProcessorExample.formatDateShort());
-console.log("formatDateLong:", dateProcessorExample.formatDateLong());
+console.log(
+  " formatDateSlashSeparated:",
+  dateProcessorExample.formatDateSlashSeparated(),
+);
+console.log(
+  "formatDateDashSeparated:",
+  dateProcessorExample.formatDateDashSeparated(),
+);
 console.log(
   "capitalizeDateString:",
   dateProcessorExample.capitalizeDateString("monday february"),
