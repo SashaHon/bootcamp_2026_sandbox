@@ -84,3 +84,38 @@ class DateProcessor {
     return day === 0 || day === 6;
   }
 }
+
+// DateProcessor example usage
+const dateProcessorExample = new DateProcessor("2026-02-24T10:30:00Z");
+
+console.log("DateProcessor object:", dateProcessorExample);
+console.log("formatDateShort:", dateProcessorExample.formatDateShort());
+console.log("formatDateLong:", dateProcessorExample.formatDateLong());
+console.log(
+  "capitalizeDateString:",
+  dateProcessorExample.capitalizeDateString("monday february"),
+);
+console.log("isWeekend:", dateProcessorExample.isWeekend());
+
+console.log(
+  "processDateComplex (ISO):",
+  dateProcessorExample.processDateComplex("2026-02-24T10:30:00Z", false, 0, {
+    format: DATE_FORMATS.ISO,
+  }),
+);
+console.log(
+  "processDateComplex (UTC):",
+  dateProcessorExample.processDateComplex("2026-02-24T10:30:00Z", false, 0, {
+    format: DATE_FORMATS.UTC,
+  }),
+);
+console.log(
+  "processDateComplex (LOCAL, +2h):",
+  dateProcessorExample.processDateComplex("2026-02-24T10:30:00Z", false, 2, {
+    format: DATE_FORMATS.LOCAL,
+  }),
+);
+console.log(
+  "processDateComplex (includeTime):",
+  dateProcessorExample.processDateComplex("2026-02-24T10:30:00Z", true),
+);
